@@ -38,7 +38,7 @@ proc tools_create_item {parent args} {
 }
 
 proc tools_populate_one {fullname} {
-	global tools_menubar tools_menutbl tools_id
+	global tools_menubar tools_menutbl tools_id repo_config
 
 	if {![info exists tools_id]} {
 		set tools_id 0
@@ -61,9 +61,18 @@ proc tools_populate_one {fullname} {
 		}
 	}
 
-	tools_create_item $parent command \
+	if {[info exists repo_config(guitool.$fullname.gitgui-shortcut)]} {
+		set gitgui_shortcut $repo_config(guitool.$fullname.gitgui-shortcut)
+		tools_create_item $parent command \
 		-label [lindex $names end] \
-		-command [list tools_exec $fullname]
+		-command [list tools_exec $fullname] \
+		-accelerator $gitgui_shortcut
+		bind . <$gitgui_shortcut> [list tools_exec $fullname]
+	} else {
+		tools_create_item $parent command \
+			-label [lindex $names end] \
+			-command [list tools_exec $fullname]
+	}
 }
 
 proc tools_exec {fullname} {
